@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Fingerprint, ClipboardList, 
   Clock, FileText, FileBarChart, Calendar, Tags, 
@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 
 const Layout = () => {
+  const location = useLocation();
+  const headerTitle = location.pathname === '/dashboard' ? 'Dashboard' : '';
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   // Current date formatting for the header
@@ -37,7 +39,7 @@ const Layout = () => {
               <SidebarLink to="/overtime" icon={<Clock size={18} />} label="My Overtime" />
               <SidebarLink to="/leave" icon={<FileText size={18} />} label="My Leave" />
               
-              {/* Report Menu Header (Non-clickable) */}
+              {/* Report Menu Header */}
               <div className="flex items-center gap-3 px-3 py-1.5 text-gray-600">
                 <FileBarChart size={18} />
                 <span className="text-sm">My Report</span>
@@ -84,7 +86,7 @@ const Layout = () => {
         
         {/* HEADER */}
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shrink-0 relative z-40">
-          <h1 className="text-xl font-bold text-gray-800 tracking-tight">Dashboard</h1>
+          <h1 className="text-xl font-bold text-gray-800 tracking-tight">{headerTitle}</h1>
           <div className="flex items-center gap-6">
             <div className="text-gray-500 text-sm">
               {currentDate} <span className="font-bold text-black ml-2">5:30:15 PM</span>

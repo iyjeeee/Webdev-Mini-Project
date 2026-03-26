@@ -1,6 +1,7 @@
 import React from 'react';
-import { Download, Calendar, Clock, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import StatCard from '../../components/statCard';
+import { DatePickerInput, TimePickerInput } from '../../components/formInputs.jsx';
 
 const Overtime = () => {
   const otHistory = [
@@ -14,7 +15,7 @@ const Overtime = () => {
   return (
     <div className="space-y-4 pb-10">
       
-      {/* 1. Header Section */}
+      {/* Header Section */}
       <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 leading-tight">My Overtime</h2>
@@ -36,7 +37,7 @@ const Overtime = () => {
         </div>
       </div>
 
-      {/* 2. Stat Cards Row (Using your component) */}
+      {/* Stat Cards Row */}
       <div className="grid grid-cols-4 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <StatCard value="5" label="TOTAL FILED" description="All Time" />
         <StatCard value="14h" label="APPROVED HOURS" description="All approved OT" />
@@ -44,32 +45,29 @@ const Overtime = () => {
         <StatCard value="0" label="REJECTED" description="All Time" />
       </div>
 
-      {/* 3. File New OT Form */}
+      {/* File New OT Form */}
       <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
         <h3 className="text-xs font-black text-gray-900 uppercase tracking-widest mb-4">File New Overtime Request</h3>
         <form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Date of Overtime</label>
-              <div className="relative">
-                <input type="text" defaultValue="3/2/2026" className="w-full pl-3 pr-10 py-2 border border-gray-900 rounded-lg text-sm focus:outline-none" />
-                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Start Time</label>
-              <div className="relative">
-                <input type="text" defaultValue="5 : 00 PM" className="w-full pl-3 pr-10 py-2 border border-gray-900 rounded-lg text-sm focus:outline-none" />
-                <Clock className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">End Time</label>
-              <div className="relative">
-                <input type="text" defaultValue="7 : 00 PM" className="w-full pl-3 pr-10 py-2 border border-gray-900 rounded-lg text-sm focus:outline-none" />
-                <Clock className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              </div>
-            </div>
+            
+            {/* Using the Date Picker Component */}
+            <DatePickerInput 
+              label="Date of Overtime" 
+              defaultValue="2026-03-02" 
+            />
+            
+            {/* Using the Time Picker Components */}
+            <TimePickerInput 
+              label="Start Time" 
+              defaultValue="17:00" 
+            />
+            
+            <TimePickerInput 
+              label="End Time" 
+              defaultValue="19:00" 
+            />
+
           </div>
           <div className="space-y-1">
             <div className="flex justify-between items-end">
@@ -78,7 +76,7 @@ const Overtime = () => {
                 <textarea 
                   rows="2" 
                   placeholder="Briefly describe the reason for overtime work..." 
-                  className="w-full p-3 border border-gray-900 rounded-lg text-sm focus:outline-none resize-none"
+                  className="w-full p-3 border border-gray-900 rounded-lg text-sm outline-none transition-colors focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 resize-none"
                 ></textarea>
               </div>
               <button className="ml-4 mb-1 bg-black text-white px-8 py-2.5 rounded-lg text-sm font-bold hover:bg-gray-800 transition-all cursor-pointer">
@@ -89,7 +87,7 @@ const Overtime = () => {
         </form>
       </div>
 
-      {/* 4. Overtime History Table */}
+      {/* Overtime History Table */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
           <h3 className="text-[11px] font-black text-gray-900 uppercase tracking-widest">Overtime History</h3>
@@ -114,13 +112,13 @@ const Overtime = () => {
             {otHistory.map((ot, index) => (
               <tr key={index} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-4 text-[11px] font-bold text-gray-900">{ot.ref}</td>
-                <td className="px-4 py-4 text-[11px] font-bold text-gray-900">{ot.date}</td>
-                <td className="px-4 py-4 text-[11px] font-bold text-gray-500">{ot.day}</td>
+                <td className="px-4 py-4 text-[11px] text-gray-900">{ot.date}</td>
+                <td className="px-4 py-4 text-[11px] text-gray-900">{ot.day}</td>
                 <td className="px-4 py-4 text-[11px] font-bold text-gray-900">{ot.start}</td>
                 <td className="px-4 py-4 text-[11px] font-bold text-gray-900">{ot.end}</td>
-                <td className="px-4 py-4 text-[11px] font-bold text-gray-900">{ot.total}</td>
-                <td className="px-4 py-4 text-[11px] font-bold text-gray-600 truncate max-w-[150px]">{ot.reason}</td>
-                <td className="px-4 py-4 text-[11px] font-bold text-gray-500">{ot.filed}</td>
+                <td className="px-4 py-4 text-[11px] text-gray-900">{ot.total}</td>
+                <td className="px-4 py-4 text-[11px] text-gray-900 truncate max-w-[150px]">{ot.reason}</td>
+                <td className="px-4 py-4 text-[11px] font-bold text-gray-900">{ot.filed}</td>
                 <td className="px-4 py-4">
                   <span className={`px-4 py-1 rounded-full text-[9px] font-bold shadow-sm ${
                     ot.status === 'Approved' ? 'bg-green-500 text-white' : 'bg-orange-400 text-white'
@@ -128,7 +126,7 @@ const Overtime = () => {
                     {ot.status}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-[11px] font-bold text-gray-500">{ot.approvedBy}</td>
+                <td className="px-4 py-4 text-[11px] font-bold text-gray-900">{ot.approvedBy}</td>
               </tr>
             ))}
           </tbody>

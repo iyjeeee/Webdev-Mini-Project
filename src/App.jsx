@@ -1,5 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+// PUBLIC PAGES
 import Login from './pages/login/login.jsx';
+import ForgotPassword from './pages/login/forgotPassword.jsx'; // <-- 1. Import the new page here
+
+// LAYOUT
 import Layout from './layouts/layout.jsx';
 
 // MAIN
@@ -25,10 +30,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Route */}
+        
+        {/* === Public Routes === */}
         <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} /> 
+        <Route path="/forgot-password" element={<ForgotPassword />} /> 
 
-        {/* Protected Routes (Wrapped in the Sidebar Layout) */}
         <Route element={<Layout />}>
           
           {/* Main Navigation */}

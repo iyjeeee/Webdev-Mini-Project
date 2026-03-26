@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Fingerprint, ClipboardList, 
@@ -10,11 +10,6 @@ const Layout = () => {
   const location = useLocation();
   const headerTitle = location.pathname === '/dashboard' ? 'Dashboard' : '';
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-
-  // Current date formatting for the header
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    month: 'long', day: '2-digit', year: 'numeric'
-  });
 
   return (
     <div className="flex h-screen bg-gray-50 font-sans text-gray-900">
@@ -88,9 +83,9 @@ const Layout = () => {
         <header className="h-16 bg-white flex items-center justify-between px-8 shrink-0 relative z-40">
           <h1 className="text-xl font-bold text-gray-800 tracking-tight">{headerTitle}</h1>
           <div className="flex items-center gap-6">
-            <div className="text-gray-500 text-sm">
-              {currentDate} <span className="font-bold text-black ml-2">5:30:15 PM</span>
-            </div>
+            
+            {/* Live Clock */}
+            <LiveClock />
             
             {/* Notification Logic */}
             <div className="relative">
@@ -105,7 +100,6 @@ const Layout = () => {
               {/* Notification Dropdown */}
               {isNotificationOpen && (
                 <>
-                  {/* Invisible overlay to close on click-outside */}
                   <div 
                     className="fixed inset-0 z-10" 
                     onClick={() => setIsNotificationOpen(false)}
@@ -117,7 +111,7 @@ const Layout = () => {
                       <span className="text-[10px] bg-yellow-400 px-2 py-0.5 rounded-full font-bold">3 NEW</span>
                     </div>
                     
-                    <div className="max-h-350px overflow-y-auto">
+                    <div className="max-h-[350px] overflow-y-auto">
                       <NotificationItem 
                         title="Revised Attendance Policy - Effective March 2026" 
                         time="2 hours ago" 
@@ -155,6 +149,31 @@ const Layout = () => {
 };
 
 /* --- Helper Components --- */
+
+const LiveClock = () => {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+    return () => clearInterval(timerId);
+  }, []);
+
+  const formattedDate = time.toLocaleDateString('en-US', {
+    month: 'long', day: 'numeric', year: 'numeric'
+  });
+
+  const formattedTime = time.toLocaleTimeString('en-US', {
+    hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
+  });
+
+  return (
+    <div className="text-gray-500 text-sm">
+      {formattedDate} <span className="font-bold text-black ml-2">{formattedTime}</span>
+    </div>
+  );
+};
 
 const SidebarLink = ({ to, icon, label }) => (
   <NavLink

@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // PUBLIC PAGES
 import Login from './pages/login/login.jsx';
-import ForgotPassword from './pages/login/forgotPassword.jsx'; // <-- 1. Import the new page here
+import ForgotPassword from './pages/login/forgotPassword.jsx'; 
 
 // LAYOUT
 import Layout from './layouts/layout.jsx';
@@ -16,9 +16,7 @@ import Overtime from './pages/overtime/overtime.jsx';
 import Leave from './pages/leave/leave.jsx';
 
 //REPORTS PAGE
-import ApprovalOvertime from './pages/reports/approvalOvertime.jsx';
-import ApprovalLeave from './pages/reports/approvalLeave.jsx';
-import AttendanceSummary from './pages/reports/attendanceSummary.jsx';
+import Reports from './pages/reports/reports.jsx';
 
 //SETTINGS & PROFILE
 import Calendar from './pages/calendar/calendar.jsx';
@@ -47,9 +45,7 @@ function App() {
           <Route path="/leave" element={<Leave />} />
           
           {/* Reports */}
-          <Route path="/report/overtime" element={<ApprovalOvertime />} />
-          <Route path="/report/leave" element={<ApprovalLeave />} />
-          <Route path="/report/summary" element={<AttendanceSummary />} />
+          <Route path="/reports" element={<Reports />} />
 
           {/* Settings & Profile */}
           <Route path="/calendar" element={<Calendar />} />

@@ -8,7 +8,7 @@ import LeaveCreditsTab   from './tabs/leaveCreditsTab.jsx';
 import PayslipsTab       from './tabs/payslipsTab.jsx';
 import DocumentsTab      from './tabs/documentsTab.jsx';
 
-// ── Tab config ────────────────────────────────────────────────────────────────
+// Tab config 
 const TABS = [
   { id: 'profile',    label: 'Profile Info',    icon: <User size={15} /> },
   { id: 'employment', label: 'Employment Info',  icon: <Briefcase size={15} /> },
@@ -17,7 +17,7 @@ const TABS = [
   { id: 'documents',  label: 'Documents',        icon: <Files size={15} /> },
 ];
 
-// ── Profile Info Tab ──────────────────────────────────────────────────────────
+// Profile Info Tab 
 const ProfileInfoTab = () => (
   <div className="p-6 space-y-6">
     {/* Basic Details */}
@@ -36,23 +36,23 @@ const ProfileInfoTab = () => (
       </div>
     </div>
 
-    {/* Government IDs */}
+    {/* Primary Identification  */}
     <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
       <div className="bg-gray-50/80 px-5 py-3 border-b border-gray-200 flex items-center gap-2">
         <CreditCard size={15} className="text-gray-400" />
-        <h3 className="font-bold text-sm text-gray-700">Government ID Numbers</h3>
+        <h3 className="font-bold text-sm text-gray-700">Primary Identification</h3>
       </div>
       <div className="p-6 grid grid-cols-2 gap-y-10">
-        <DetailItem label="SSS Number"                value="34-12346-102" />
-        <DetailItem label="PhilHealth Number"         value="1234-23467-123" />
-        <DetailItem label="Pag-IBIG Number"           value="1234-2938-2341" />
-        <DetailItem label="Tax Identification Number" value="123-234-234-1" />
+        <DetailItem label="PhilSys National ID (PCN)" value="1234-5678-9012-3456" />
+        <DetailItem label="Passport Number"           value="P1234567A" />
+        <DetailItem label="Driver's License"          value="N01-23-456789" />
+        <DetailItem label="PRC License"               value="0123456" extra="(Optional)" />
       </div>
     </div>
   </div>
 );
 
-// ── Main Profile Page ─────────────────────────────────────────────────────────
+//  Main Profile Page 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('profile');
 
@@ -70,7 +70,7 @@ const Profile = () => {
   return (
     <div className="space-y-6 pb-10">
 
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      {/* Hero */}
       <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
         <div className="flex justify-between items-start">
           <div className="flex gap-5 items-center">
@@ -106,7 +106,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* ── Stat Cards ───────────────────────────────────────────────────── */}
+      {/*  Stat Cards  */}
       <div className="grid grid-cols-4 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <StatCard value="26"       label="Total Days Present"      description="Attendance" />
         <StatCard value="26"       label="Leave Credits Remaining" description="Available" />
@@ -114,7 +114,7 @@ const Profile = () => {
         <StatCard value="10:00 AM" label="Required Time In"        description="Daily Shift" />
       </div>
 
-      {/* ── Tab Panel ────────────────────────────────────────────────────── */}
+      {/*  Tab Panel  */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         {/* Tab Bar */}
         <div className="flex border-b border-gray-200">
@@ -140,7 +140,7 @@ const Profile = () => {
   );
 };
 
-/* ── Helpers ──────────────────────────────────────────────────────────────── */
+/*  Helpers  */
 const DetailItem = ({ label, value, extra }) => (
   <div>
     <p className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 tracking-wider">{label}</p>

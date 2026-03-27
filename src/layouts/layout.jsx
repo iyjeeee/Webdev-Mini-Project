@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, Users, Fingerprint, ClipboardList, 
+  LayoutDashboard, Fingerprint, ClipboardList, 
   Clock, FileText, FileBarChart, Calendar, Tags, 
   CalendarPlus, User, LogOut, Bell 
 } from 'lucide-react';
@@ -17,42 +17,30 @@ const Layout = () => {
       {/* SIDEBAR */}
       <div className="w-64 bg-white flex flex-col h-full">
         <div className="flex-1 overflow-y-auto">
-          {/* Logo Area */}
-          <div className="flex items-center gap-2 p-4 pb-8 mt-2">
+
+         {/* Logo Area */}
+          <div className="flex items-center gap-2 p-4 pb-4 mt-2">
             <span className="text-yellow-400 font-bold text-xl">HRIS</span>
             <span className="font-bold text-xl tracking-tight">HS SYSTEM</span>
           </div>
 
           {/* Main Navigation */}
           <div className="px-4">
-            <p className="text-[10px] text-gray-400 font-semibold mb-4 ml-2">MAIN</p>
-            <nav className="space-y-0.5">
-              <SidebarLink to="/dashboard" icon={<LayoutDashboard size={18} />} label="Dashboard" />
-              <SidebarLink to="/directory" icon={<Users size={18} />} label="Employment Directory" />
-              <SidebarLink to="/attendance" icon={<Fingerprint size={18} />} label="My Attendance" />
-              <SidebarLink to="/tasks" icon={<ClipboardList size={18} />} label="My Task Board" />
-              <SidebarLink to="/overtime" icon={<Clock size={18} />} label="My Overtime" />
-              <SidebarLink to="/leave" icon={<FileText size={18} />} label="My Leave" />
-              
-              {/* Report Menu Header */}
-              <div className="flex items-center gap-3 px-3 py-1.5 text-gray-600">
-                <FileBarChart size={18} />
-                <span className="text-sm">My Report</span>
-              </div>
-
-              {/* Sub-menu items */}
-              <div className="ml-8 mt-0 mb-1 space-y-0 text-[13px] border-l-2 border-gray-100 pl-2">
-                <NavLink to="/report/overtime" className={({isActive}) => `block py-0.5 transition-colors ${isActive ? 'text-black font-semibold' : 'text-gray-500 hover:text-gray-900'}`}>For Approval Overtime</NavLink>
-                <NavLink to="/report/leave" className={({isActive}) => `block py-0.5 transition-colors ${isActive ? 'text-black font-semibold' : 'text-gray-500 hover:text-gray-900'}`}>For Approval Leave</NavLink>
-                <NavLink to="/report/summary" className={({isActive}) => `block py-0.5 transition-colors ${isActive ? 'text-black font-semibold' : 'text-gray-500 hover:text-gray-900'}`}>Summary of Attendance</NavLink>
-              </div>
+            <p className="text-[10px] text-gray-400 font-bold mb-2 ml-2 tracking-wider pt-6">MAIN</p>
+            <nav className="space-y-1.5"> {/* <--- Increased to space-y-1.5 */}
+              <SidebarLink to="/dashboard" icon={<LayoutDashboard size={20} />} label="Dashboard" />
+              <SidebarLink to="/attendance" icon={<Fingerprint size={20} />} label="My Attendance" />
+              <SidebarLink to="/tasks" icon={<ClipboardList size={20} />} label="My Task Board" />
+              <SidebarLink to="/overtime" icon={<Clock size={20} />} label="My Overtime" />
+              <SidebarLink to="/leave" icon={<FileText size={20} />} label="My Leave" />
+              <SidebarLink to="/reports" icon={<FileBarChart size={20} />} label="My Report" />
             </nav>
 
-            <p className="text-[10px] text-gray-400 font-semibold mt-8 mb-4 ml-2">SETTINGS</p>
-            <nav className="space-y-0.5">
-              <SidebarLink to="/calendar" icon={<Calendar size={18} />} label="Calendar" />
-              <SidebarLink to="/event-type" icon={<Tags size={18} />} label="Event Type" />
-              <SidebarLink to="/add-event" icon={<CalendarPlus size={18} />} label="Add Event" />
+            <p className="text-[10px] text-gray-400 font-bold mt-5 mb-2 ml-2 tracking-wider">SETTINGS</p>
+            <nav className="space-y-1.5"> {/* <--- Increased to space-y-1.5 */}
+              <SidebarLink to="/calendar" icon={<Calendar size={20} />} label="Calendar" />
+              <SidebarLink to="/event-type" icon={<Tags size={20} />} label="Event Type" />
+              <SidebarLink to="/add-event" icon={<CalendarPlus size={20} />} label="Add Event" />
             </nav>
           </div>
         </div>
@@ -148,7 +136,7 @@ const Layout = () => {
   );
 };
 
-/* --- Helper Components --- */
+/* Helper Components  */
 
 const LiveClock = () => {
   const [time, setTime] = useState(new Date());
@@ -179,15 +167,15 @@ const SidebarLink = ({ to, icon, label }) => (
   <NavLink
     to={to}
     className={({ isActive }) =>
-      `flex items-center gap-3 px-3 py-1.5 rounded-lg transition-colors ${
+      `flex items-center gap-3.5 px-4 py-2.5 rounded-xl transition-colors ${ 
         isActive 
-          ? 'bg-yellow-400 text-black font-semibold shadow-sm' 
-          : 'text-gray-600 hover:bg-gray-100 hover:text-black'
+          ? 'bg-yellow-400 text-black font-bold shadow-sm' 
+          : 'text-gray-600 hover:bg-gray-50 hover:text-black font-medium'
       }`
     }
   >
     {icon}
-    <span className="text-sm">{label}</span>
+    <span className="text-[14px]">{label}</span>
   </NavLink>
 );
 

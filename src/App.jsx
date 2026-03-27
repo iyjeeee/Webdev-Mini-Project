@@ -21,7 +21,7 @@ import ApprovalLeave from './pages/reports/approvalLeave.jsx';
 import AttendanceSummary from './pages/reports/attendanceSummary.jsx';
 
 //SETTINGS & PROFILE
-import Calendar from './pages/Calendar/calendar.jsx';
+import Calendar from './pages/calendar/calendar.jsx';
 import EventType from './pages/eventType/eventType.jsx';
 import AddEvent from './pages/addEvent/addEvent.jsx';
 import Profile from './pages/profile/profile.jsx';

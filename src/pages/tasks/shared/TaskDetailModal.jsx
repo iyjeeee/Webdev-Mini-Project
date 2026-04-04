@@ -1,6 +1,3 @@
-// ============================================================
-// TaskDetailModal.jsx — Modal showing full task details
-// ============================================================
 import React from 'react';
 import { X, ExternalLink, Calendar, Clock, CheckCircle2, User } from 'lucide-react';
 import { STATUS_STYLES, formatDate, formatTime } from './taskData';

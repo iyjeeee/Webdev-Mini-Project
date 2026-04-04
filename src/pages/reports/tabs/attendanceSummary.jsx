@@ -1,137 +1,116 @@
-import React from 'react';
-import StatCard from '../../../components/statCard'; 
+import React, { useState, useEffect, useCallback } from 'react';
+import StatCard from '../../../components/statCard.jsx';
+import Pagination from '../../../components/Pagination.jsx';
+import { getAttendanceLogs, getAttendanceStats } from '../../../api/attendanceApi.js';
+
+const PAGE_SIZE = 5; // records per page
 
 const STATUS_STYLE = {
-  'Present':  'bg-green-500 text-white',  
-  'Absent':   'bg-red-500 text-white',     
-  'On Leave': 'bg-yellow-400 text-white',  
-  'Rest Day': 'bg-gray-400 text-white',   
-  'Holiday':  'bg-blue-500 text-white',    
+  'Present':  'bg-green-500 text-white',
+  'Absent':   'bg-red-500 text-white',
+  'On Leave': 'bg-yellow-400 text-white',
+  'Rest Day': 'bg-gray-400 text-white',
+  'Holiday':  'bg-blue-500 text-white',
 };
 
-const MOCK_ATTENDANCE = [
-  { date: 'March 2, 2026', day: 'Monday', status: 'Present', timeIn: '8:02 AM', timeOut: '5:05 PM', hours: '9h 03m', ot: '1h 03m', late: '---' },
-  { date: 'March 1, 2026', day: 'Sunday', status: 'Rest Day', timeIn: '---', timeOut: '---', hours: '---', ot: '---', late: '---' },
-  { date: 'Feb 27, 2026', day: 'Friday', status: 'Present', timeIn: '7:55 AM', timeOut: '4:00 PM', hours: '8h 05m', ot: '---', late: '---' },
-];
-
 const AttendanceSummary = () => {
+  const [logs,        setLogs]       = useState([]);
+  const [stats,       setStats]      = useState({});
+  const [totalItems,  setTotalItems] = useState(0);
+  const [totalPages,  setTotalPages] = useState(1);
+  const [loading,     setLoading]    = useState(true);
+  const [currentPage, setPage]       = useState(1);
+
+  // Current month string YYYY-MM
+  const monthStr = new Date().toISOString().slice(0, 7);
+  const monthLabel = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [logsRes, statsRes] = await Promise.all([
+        getAttendanceLogs({ page: currentPage, pageSize: PAGE_SIZE, month: monthStr }),
+        getAttendanceStats({ month: monthStr }),
+      ]);
+      setLogs(logsRes.data || []);
+      setTotalItems(logsRes.pagination?.total     || 0);
+      setTotalPages(logsRes.pagination?.totalPages || 1);
+      setStats(statsRes.data || {});
+    } catch { /* show empty */ }
+    finally { setLoading(false); }
+  }, [currentPage, monthStr]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      
-      {/*  Stat Cards */}
-      <div className="grid grid-cols-5 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden divide-x divide-gray-200">
-        <StatCard value="20"  label="WORKING DAYS" description="March 2026 Expected" />
-        <StatCard value="2"   label="PRESENT"      description="Days Attended" />
-        <StatCard value="0"   label="ABSENT"       description="No Absences" />
-        <StatCard value="0"   label="LATE"         description="Late Arrivals" />
-        <StatCard value="17h" label="TOTAL HOURS"  description="Rendered This Month" />
+
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden divide-x divide-gray-200">
+        <StatCard value={stats.working_days  ?? '—'} label="WORKING DAYS" description={`${monthLabel} Expected`} />
+        <StatCard value={stats.present       ?? 0}   label="PRESENT"      description="Days Attended" />
+        <StatCard value={stats.absent        ?? 0}   label="ABSENT"       description="No Absences"   />
+        <StatCard value={stats.late          ?? 0}   label="LATE"         description="Late Arrivals"  />
+        <StatCard value={`${stats.total_hours ?? 0}h`} label="TOTAL HOURS" description="Rendered This Month" />
       </div>
 
-      {/*  Main Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Left Side: Attendance Table (Takes 2 Columns) */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
-          <div className="p-5 border-b border-gray-100 bg-gray-50/30">
-            <h3 className="text-[11px] font-black text-gray-900 uppercase tracking-widest">Daily Attendance Summary — March 2026</h3>
-          </div>
+      {/* Attendance table */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+        <div className="p-5 border-b border-gray-100 bg-gray-50/30">
+          <h3 className="text-[11px] font-black text-gray-900 uppercase tracking-widest">
+            Daily Attendance Summary — {monthLabel}
+          </h3>
+        </div>
 
-          <div className="overflow-x-auto flex-1">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-white border-b border-gray-200 text-[9px] uppercase tracking-wider text-gray-800 font-black">
-                  <th className="px-5 py-4 whitespace-nowrap">Date</th>
-                  <th className="px-5 py-4 whitespace-nowrap">Day</th>
-                  <th className="px-5 py-4 whitespace-nowrap">Status</th>
-                  <th className="px-5 py-4 whitespace-nowrap">Time In</th>
-                  <th className="px-5 py-4 whitespace-nowrap">Time Out</th>
-                  <th className="px-5 py-4 whitespace-nowrap">Hours Rendered</th>
-                  <th className="px-5 py-4 whitespace-nowrap">OT Hours</th>
-                  <th className="px-5 py-4 whitespace-nowrap">Late</th>
+        <div className="overflow-x-auto flex-1">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                {['Date','Day','Status','Time In','Time Out','Hours','OT','Late'].map((h) => (
+                  <th key={h} className="px-5 py-3">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {loading ? (
+                Array.from({ length: PAGE_SIZE }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    {Array.from({ length: 8 }).map((__, j) => (
+                      <td key={j} className="px-5 py-3"><div className="h-3 bg-gray-100 rounded w-full" /></td>
+                    ))}
+                  </tr>
+                ))
+              ) : logs.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-5 py-10 text-center text-sm text-gray-400">No records for {monthLabel}.</td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {MOCK_ATTENDANCE.map((record, index) => (
-                  <tr key={index} className="hover:bg-gray-50/80 transition-colors">
-                    <td className="px-5 py-4 text-[10px] font-bold text-gray-900 whitespace-nowrap">{record.date}</td>
-                    <td className="px-5 py-4 text-[10px] text-gray-900 font-bold whitespace-nowrap">{record.day}</td>
-                    <td className="px-5 py-4 whitespace-nowrap">
-                      <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold shadow-sm ${STATUS_STYLE[record.status]}`}>
-                        {record.status}
+              ) : (
+                logs.map((log) => (
+                  <tr key={log.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-5 py-3 text-xs font-medium text-gray-800 whitespace-nowrap">{log.date}</td>
+                    <td className="px-5 py-3 text-xs text-gray-500">{(log.day || '').trim()}</td>
+                    <td className="px-5 py-3">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${STATUS_STYLE[log.status] ?? 'bg-gray-200 text-gray-600'}`}>
+                        {log.status}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-[10px] font-bold text-gray-900 whitespace-nowrap">{record.timeIn}</td>
-                    <td className="px-5 py-4 text-[10px] font-bold text-gray-900 whitespace-nowrap">{record.timeOut}</td>
-                    <td className="px-5 py-4 text-[10px] font-bold text-gray-900 whitespace-nowrap">{record.hours}</td>
-                    <td className="px-5 py-4 text-[10px] font-bold text-gray-900 whitespace-nowrap">{record.ot}</td>
-                    <td className="px-5 py-4 text-[10px] font-bold text-gray-400 whitespace-nowrap">{record.late}</td>
+                    <td className="px-5 py-3 text-xs text-gray-600">{log.time_in  || '—'}</td>
+                    <td className="px-5 py-3 text-xs text-gray-600">{log.time_out || '—'}</td>
+                    <td className="px-5 py-3 text-xs font-semibold text-gray-800">{log.hours_rendered ? `${log.hours_rendered}h` : '—'}</td>
+                    <td className="px-5 py-3 text-xs text-gray-500">{log.overtime_hours ? `${log.overtime_hours}h` : '—'}</td>
+                    <td className={`px-5 py-3 text-xs font-bold ${log.is_late ? 'text-red-500' : 'text-gray-300'}`}>
+                      {log.is_late ? `${log.late_minutes}m` : '—'}
+                    </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Table Footer Totals */}
-          <div className="mt-auto border-t border-gray-200 bg-gray-50/50 p-4 flex items-center justify-between">
-            <span className="text-[10px] font-bold text-gray-900">Monthly Totals</span>
-            <div className="flex items-center gap-6">
-              <span className="text-[10px] text-gray-500 font-bold">Present: <span className="text-gray-900">2 days</span></span>
-              <span className="text-[10px] text-gray-500 font-bold">Hours: <span className="text-gray-900">17h 08m</span></span>
-              <span className="text-[10px] text-gray-500 font-bold">OT: <span className="text-gray-900">1h 03m</span></span>
-            </div>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
-        {/* Right Side: Calendar View  */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col">
-          <h3 className="text-[11px] font-black text-gray-900 uppercase tracking-widest mb-6">March 2026 Calendar View</h3>
-          
-          {/* Calendar Grid */}
-          <div className="mb-8">
-            <div className="grid grid-cols-7 mb-4 text-center">
-              {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => (
-                <div key={day} className="text-[8px] font-black text-gray-800">{day}</div>
-              ))}
-            </div>
-            
-            {/* March 2026 Dates */}
-            <div className="grid grid-cols-7 gap-y-4 text-center text-[10px] font-bold text-gray-700">
-              <div className="bg-gray-400 rounded text-white mx-auto w-6 h-6 flex items-center justify-center shadow-sm">1</div> {/* Rest Day */}
-              <div className="bg-green-500 rounded text-white mx-auto w-6 h-6 flex items-center justify-center shadow-sm">2</div> {/* Present */}
-              <div>3</div><div>4</div><div>5</div><div>6</div><div>7</div>
-              <div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div>
-              <div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div>
-              <div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div>
-              <div>29</div><div>30</div><div>31</div>
-            </div>
-          </div>
-
-          {/* legend colors */}
-          <div className="mt-auto space-y-3 pt-6 border-t border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded bg-green-500"></div>
-              <span className="text-[10px] font-bold text-gray-800">Present</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded bg-red-500"></div>
-              <span className="text-[10px] font-bold text-gray-800">Absent</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded bg-yellow-400"></div>
-              <span className="text-[10px] font-bold text-gray-800">On Leave</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded bg-blue-500"></div>
-              <span className="text-[10px] font-bold text-gray-800">Holiday</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded bg-gray-400"></div>
-              <span className="text-[10px] font-bold text-gray-800">Rest Day</span>
-            </div>
-          </div>
+        <div className="px-5 pb-4">
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} totalItems={totalItems} pageSize={PAGE_SIZE} />
         </div>
-
       </div>
     </div>
   );

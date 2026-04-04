@@ -1,63 +1,78 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext.jsx';
 
-// PUBLIC PAGES
-import Login from './pages/login/login.jsx';
-import ForgotPassword from './pages/login/forgotPassword.jsx'; 
+// Public pages
+import Login          from './pages/login/login.jsx';
+import ForgotPassword from './pages/login/forgotPassword.jsx';
 
-// LAYOUT
+// Layout wrapper
 import Layout from './layouts/layout.jsx';
 
-// MAIN
+// Main pages
 import Dashboard from './pages/dashboard/dashboard.jsx';
 import Directory  from './pages/directory/directory.jsx';
 import Attendance from './pages/attendance/attendance.jsx';
 import Overtime   from './pages/overtime/overtime.jsx';
 import Leave      from './pages/leave/leave.jsx';
+import Tasks      from './pages/tasks/tasks.jsx';
 
-//REPORTS PAGE
+// Reports
 import Reports from './pages/reports/reports.jsx';
-// TASK BOARDS
-import TaskBoardV1 from './pages/tasks/v1/TaskBoardV1.jsx';
-import TaskBoardV2 from './pages/tasks/v2/TaskBoardV2.jsx';
 
-// SETTINGS & PROFILE
+// Settings & profile
 import Calendar  from './pages/calendar/calendar.jsx';
 import EventType from './pages/eventType/eventType.jsx';
 import AddEvent  from './pages/addEvent/addEvent.jsx';
 import Profile   from './pages/profile/profile.jsx';
 
+// ── Protected route guard ─────────────────────────────────────
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/"               element={<Login />} />
-        <Route path="/login"          element={<Login />} />
+        {/* Public routes */}
+        <Route path="/"                element={<Login />} />
+        <Route path="/login"           element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        <Route element={<Layout />}>
-          {/* Main Navigation */}
+        {/* Protected routes — require auth + layout shell */}
+        <Route element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          {/* Main navigation */}
           <Route path="/dashboard"  element={<Dashboard />} />
           <Route path="/directory"  element={<Directory />} />
           <Route path="/attendance" element={<Attendance />} />
 
-          {/* Task Board Routes */}
-          <Route path="/tasks"      element={<Navigate to="/tasks/v1" replace />} />
-          <Route path="/tasks/v1"   element={<TaskBoardV1 />} />
-          <Route path="/tasks/v2"   element={<TaskBoardV2 />} />
+          {/* Task board — unified single table view */}
+          <Route path="/tasks"       element={<Tasks />} />
+          <Route path="/tasks/v1"    element={<Navigate to="/tasks" replace />} />
+          <Route path="/tasks/v2"    element={<Navigate to="/tasks" replace />} />
+          <Route path="/tasks/board" element={<Navigate to="/tasks" replace />} />
 
-          <Route path="/overtime"   element={<Overtime />} />
-          <Route path="/leave"      element={<Leave />} />
-          
+          {/* Other main pages */}
+          <Route path="/overtime" element={<Overtime />} />
+          <Route path="/leave"    element={<Leave />} />
+
           {/* Reports */}
           <Route path="/reports" element={<Reports />} />
 
-          {/* Settings & Profile */}
-          <Route path="/calendar"    element={<Calendar />} />
-          <Route path="/event-type"  element={<EventType />} />
-          <Route path="/add-event"   element={<AddEvent />} />
-          <Route path="/profile"     element={<Profile />} />
+          {/* Settings & profile */}
+          <Route path="/calendar"   element={<Calendar />} />
+          <Route path="/event-type" element={<EventType />} />
+          <Route path="/add-event"  element={<AddEvent />} />
+          <Route path="/profile"    element={<Profile />} />
         </Route>
+
+        {/* Catch-all */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );

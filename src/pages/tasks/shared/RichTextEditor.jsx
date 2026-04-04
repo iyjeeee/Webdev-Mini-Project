@@ -1,6 +1,3 @@
-// ============================================================
-// RichTextEditor.jsx — Lightweight rich-text editor toolbar
-// ============================================================
 import React, { useRef, useEffect, useCallback } from 'react';
 import {
   Bold, Italic, Underline, List, ListOrdered,

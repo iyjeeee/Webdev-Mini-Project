@@ -188,7 +188,7 @@ const LogoutModal = ({ onConfirm, onCancel }) => (
 
 // ── Main Layout ───────────────────────────────────────────────
 const Layout = () => {
-  const { user, logout }               = useAuth();       // auth context
+  const { user, logout, isGuest }      = useAuth();       // auth context — isGuest for guest banner
   const navigate                        = useNavigate();
   const [notifOpen,   setNotifOpen]     = useState(false); // bell dropdown
   const [modalOpen,   setModalOpen]     = useState(false); // all-notifications modal
@@ -222,7 +222,23 @@ const Layout = () => {
   const jobPosition = user?.jobPosition || 'Employee';
 
   return (
-    <div className="flex h-screen bg-gray-50 font-sans text-gray-900">
+    <div className="flex flex-col h-screen bg-gray-50 font-sans text-gray-900">
+
+      {/* ── Guest mode banner — only visible when isGuest is true ── */}
+      {isGuest && (
+        <div className="w-full bg-[#111111] text-white text-[11px] font-semibold py-1.5 px-4 flex items-center justify-center gap-2 shrink-0 z-40">
+          <span className="bg-gray-600 text-gray-200 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">Demo</span>
+          <span className="text-gray-300">You are viewing sample data in guest mode — changes are not saved.</span>
+          <button
+            onClick={() => { navigate('/login'); logout(); }}
+            className="ml-2 text-[#FBC02D] hover:text-yellow-300 underline cursor-pointer transition-colors text-[10px]"
+          >
+            Login with an account →
+          </button>
+        </div>
+      )}
+
+      <div className="flex flex-1 overflow-hidden">
 
       {/* ====== SIDEBAR ====== */}
       {/* border-r adds clear visual separator between sidebar and content */}
@@ -282,7 +298,7 @@ const Layout = () => {
       </div>
 
       {/* ====== MAIN CONTENT ====== */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
 
         {/* Top header bar — border-b adds clear separator between navbar and content */}
         <header className="h-16 bg-white flex items-center justify-between px-8 shrink-0 relative z-40 border-b border-gray-200">
@@ -355,6 +371,7 @@ const Layout = () => {
           onCancel={() => setLogoutModal(false)}
         />
       )}
+    </div> {/* end flex-1 overflow-hidden */}
     </div>
   );
 };

@@ -1,12 +1,18 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { loginApi } from '../api/authApi.js';
-import { getTodayAttendance, timeIn as apiTimeIn, timeOut as apiTimeOut } from '../api/attendanceApi.js';
+// AuthContext.jsx — Auth state + guest mode
+// Provides login, logout, loginAsGuest, and shared attendance state.
+// When isGuest === true, all API calls are intercepted by mockApiService.
 
-// Create context — default is undefined so missing Provider is caught early
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import { loginApi }                             from '../api/authApi.js';
+import { getTodayAttendance, timeIn as apiTimeIn, timeOut as apiTimeOut } from '../api/attendanceApi.js';
+import { MOCK_GUEST_USER }                       from '../data/mockData.js';
+import { mockGetTodayAttendance, mockTimeIn, mockTimeOut } from '../data/mockApiService.js';
+
+// Context — undefined default catches missing Provider early
 const AuthContext = createContext(undefined);
 
 export const AuthProvider = ({ children }) => {
-  // Initialise from localStorage so refresh preserves session
+  // Initialise token + user from localStorage so page refresh preserves session
   const [token, setToken] = useState(() => localStorage.getItem('token') || null);
   const [user,  setUser]  = useState(() => {
     try {
@@ -17,35 +23,44 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState(null);
 
-  // Shared attendance state (Dashboard + Attendance page in sync)
+  // Guest flag — stored in sessionStorage so it clears on tab close
+  const [isGuest, setIsGuest] = useState(
+    () => sessionStorage.getItem('isGuest') === 'true'
+  );
+
+  // Shared attendance state — used by Dashboard + Attendance page
   const [todayAttendance, setTodayAttendance] = useState(null);
   const [attLoading,      setAttLoading]      = useState(false);
   const [attError,        setAttError]        = useState(null);
 
-  // Fetch today's attendance log from API
-  const fetchTodayAttendance = useCallback(async () => {
+  // Fetch today's attendance — routes to mock or real API based on guest flag
+  const fetchTodayAttendance = useCallback(async (guestOverride = null) => {
+    // Allow callers to pass explicit guest flag (needed on immediate loginAsGuest call)
+    const guest = guestOverride !== null ? guestOverride : isGuest;
     setAttLoading(true);
     setAttError(null);
     try {
-      const res = await getTodayAttendance();
+      const res = guest
+        ? await mockGetTodayAttendance()
+        : await getTodayAttendance();
       setTodayAttendance(res.data || null);
     } catch (err) {
       if (err.status === 404) {
-        setTodayAttendance(null); // no record yet today
+        setTodayAttendance(null); // no record yet today — expected
       } else {
         setAttError(err.message || 'Failed to fetch attendance');
       }
     } finally {
       setAttLoading(false);
     }
-  }, []);
+  }, [isGuest]);
 
-  // Time-in — calls API and updates shared attendance state
+  // Time-in — routes to mock or real API
   const doTimeIn = useCallback(async () => {
     setAttLoading(true);
     setAttError(null);
     try {
-      const res = await apiTimeIn();
+      const res = isGuest ? await mockTimeIn() : await apiTimeIn();
       setTodayAttendance(res.data || null);
       return { success: true };
     } catch (err) {
@@ -55,14 +70,14 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setAttLoading(false);
     }
-  }, []);
+  }, [isGuest]);
 
-  // Time-out — calls API and updates shared attendance state
+  // Time-out — routes to mock or real API
   const doTimeOut = useCallback(async () => {
     setAttLoading(true);
     setAttError(null);
     try {
-      const res = await apiTimeOut();
+      const res = isGuest ? await mockTimeOut() : await apiTimeOut();
       setTodayAttendance(res.data || null);
       return { success: true };
     } catch (err) {
@@ -72,9 +87,9 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setAttLoading(false);
     }
-  }, []);
+  }, [isGuest]);
 
-  // Login — calls API, stores token + user in state and localStorage
+  // Login — real API call, stores JWT + user in localStorage
   const login = useCallback(async (email, password) => {
     setLoading(true);
     setError(null);
@@ -84,6 +99,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user',  JSON.stringify(res.data.user));
       setToken(res.data.token);
       setUser(res.data.user);
+      setIsGuest(false);
+      sessionStorage.removeItem('isGuest');
       return { success: true };
     } catch (err) {
       const message = err.message || 'Login failed';
@@ -94,16 +111,31 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Logout — clears state and storage, resets attendance
+  // Login as guest — uses mock sentinel token, no API call needed
+  const loginAsGuest = useCallback(() => {
+    localStorage.setItem('token', 'guest');                          // sentinel token
+    localStorage.setItem('user',  JSON.stringify(MOCK_GUEST_USER));  // mock profile
+    setToken('guest');
+    setUser(MOCK_GUEST_USER);
+    setIsGuest(true);
+    sessionStorage.setItem('isGuest', 'true');                       // persist across navigation
+    setTodayAttendance(null);
+    // Pre-fetch today's attendance for the guest (pass true explicitly)
+    fetchTodayAttendance(true);
+  }, [fetchTodayAttendance]);
+
+  // Logout — clears all state and storage
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('isGuest');
     setToken(null);
     setUser(null);
+    setIsGuest(false);
     setTodayAttendance(null);
   }, []);
 
-  // Update user info after profile changes without re-login
+  // Update user info locally (after profile edit) without re-login
   const updateUser = useCallback((updates) => {
     setUser((prev) => {
       const updated = { ...prev, ...updates };
@@ -117,8 +149,10 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     error,
+    isGuest,                          // consumers can check this to disable write actions
     isAuthenticated: !!token,
     login,
+    loginAsGuest,
     logout,
     updateUser,
     // Shared attendance state
